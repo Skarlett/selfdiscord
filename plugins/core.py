@@ -1,4 +1,4 @@
-from .__init__ import GENERATE_CLASS, lib
+from .__init__ import GENERATE_CLASS
 import discord
 import subprocess
 import logging

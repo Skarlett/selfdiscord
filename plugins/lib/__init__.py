@@ -4,16 +4,17 @@ import logging
 
 logging = logging.getLogger(__name__)
 
+# Couldn't get the discord.ext.Bot framework to work
+# So lets just make our own framework.
 class SelfBot(discord.Client):
   COMMANDS = dict()  # 'name': fn()
   EVT_HOOK = dict()  # 'evtName': set([coro(self, *args, **kwargs), ...])
   BG_TASKS =  set()  # set([ (coro(self, wait_for_result), coro()) , ...])
   
-  def __init__(self, prefix, plugin_manager, *args, **kwargs):
-    logging.log(100, f"Discord.py[{discord.__version__}]")
+  def __init__(self, prefix, *args, **kwargs):
+    logging.info(f"Discord.py[{discord.__version__}]")
     super().__init__(*args, **kwargs)
     self.prefix = prefix
-    self.plugin_mgr = plugin_manager
     self.running = True
     
     self._setup_event_hooks()
@@ -27,6 +28,7 @@ class SelfBot(discord.Client):
       return evt_wrapper
     
     for evt_name in self.EVT_HOOK:
+      logging.info(f"Adding event {evt_name}")
       setattr(self, evt_name, wraps(evt_name))
       
   def _setup_bg_tasks(self):
@@ -35,13 +37,14 @@ class SelfBot(discord.Client):
         await coro(self)
     
     for coro in self.__class__.BG_TASKS:
+      logging.info(f"Adding background task {coro.__name__}")
       self.loop.create_task(wrapper())
     
   @classmethod
   @util.parametrized_decorator
   def command(coro, cls, name=None):
     # Assumes core.on_message is defined
-    logging.debug(f"running command capture on {name or coro.__name__}")
+    logging.info(f"Adding command {name or coro.__name__}")
     cls.COMMANDS[name or coro.__name__] = coro
     return coro
     
@@ -52,10 +55,12 @@ class SelfBot(discord.Client):
       container.add(coro)
     else:
       cls.EVT_HOOK[coro.__name__] = { coro }
+    
+    logging.info(f"Hooking event {coro.__name__}")
     return coro
     
   @classmethod
-  def background_task(cls, coro):
+  def background(cls, coro):
     cls.BG_TASKS.add(coro)
     return coro
   
@@ -68,5 +73,4 @@ class SelfBot(discord.Client):
           logging.warning(e)
           continue
   
-
-
+ 

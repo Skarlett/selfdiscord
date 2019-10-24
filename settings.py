@@ -4,6 +4,5 @@ import logging
 PREFIX = "!m "
 MODULES = bootstrap.DynamicImport('plugins')
 
-import logging
 logging.basicConfig()
-logging.getLogger().setLevel(logging.CRITICAL)
+logging.getLogger().setLevel(logging.ERROR)
