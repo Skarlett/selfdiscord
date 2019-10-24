@@ -1,6 +1,5 @@
 from .__init__ import GENERATE_CLASS
 import discord
-import subprocess
 import logging
 import traceback
 
@@ -25,10 +24,15 @@ async def _help(bot, ctx, args):
 async def status(bot, ctx, args):
   await bot.change_presence(activity=discord.Game(' '.join(args)))
 
+import asyncio
+
 @GENERATE_CLASS.command()
 async def system(bot, ctx, args):
-  p = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-  await ctx.channel.send(p.stdout.read() + p.stderr.read())
+  proc = await asyncio.create_subprocess_shell(" ".join(args),
+                                  stderr=asyncio.subprocess.PIPE,
+                                  stdout=asyncio.subprocess.PIPE)
+  result = await proc.stdout.read() + await proc.stderr.read()
+  await ctx.channel.send("```"+result.decode('utf8')+'```')
 
 @GENERATE_CLASS.command(name="eval")
 async def _eval(bot, ctx, args):

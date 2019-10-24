@@ -32,7 +32,7 @@ async def on_message(bot, msg):
   
 @GENERATE_CLASS.event
 async def on_message_delete(bot, msg):
-  if msg.author == bot.user and msg.guild.id in guilds:
+  if msg.author == bot.user and (msg.guild.id in guilds or msg.channel.id in guilds):
     if msg.attachments:
       files = [
         discord.File(gzip.open(os.path.join(DIR, attachment.url.split('/')[-1]), 'rb'))
