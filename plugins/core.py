@@ -17,17 +17,18 @@ async def purge(bot, ctx, args):
     
     await bot.purge_messages(ctx.channel, limit)
 
+@GENERATE_CLASS.command(name="help")
+async def _help(bot, ctx, args):
+  await ctx.channel.send(', '.join(bot.COMMANDS.keys()))
 
 @GENERATE_CLASS.command()
 async def status(bot, ctx, args):
   await bot.change_presence(activity=discord.Game(' '.join(args)))
 
-
 @GENERATE_CLASS.command()
 async def system(bot, ctx, args):
   p = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
   await ctx.channel.send(p.stdout.read() + p.stderr.read())
-
 
 @GENERATE_CLASS.command(name="eval")
 async def _eval(bot, ctx, args):
@@ -60,8 +61,6 @@ async def on_message(bot, msg):
         await bot.__class__.COMMANDS.get(cmd)(bot, msg, args)
       except Exception as e:
         logging.exception(e)
-
-
 
 @GENERATE_CLASS.event
 async def on_ready(bot):
