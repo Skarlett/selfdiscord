@@ -2,6 +2,7 @@ from .__init__ import GENERATE_CLASS
 import discord
 import logging
 import traceback
+import asyncio
 
 @GENERATE_CLASS.command()
 async def purge(bot, ctx, args):
@@ -24,7 +25,6 @@ async def _help(bot, ctx, args):
 async def status(bot, ctx, args):
   await bot.change_presence(activity=discord.Game(' '.join(args)))
 
-import asyncio
 
 @GENERATE_CLASS.command()
 async def system(bot, ctx, args):
@@ -71,7 +71,7 @@ async def on_ready(bot):
   print(f"logged in as {bot.user}")
 
 
-# @GENERATE_CLASS.background_task
+# @GENERATE_CLASS.background
 # async def print_screen(bot):
 #   print("hello!!!", bot)
 #   await asyncio.sleep(10)
