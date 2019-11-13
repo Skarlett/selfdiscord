@@ -1,9 +1,9 @@
-from .__init__ import GENERATE_CLASS
+from ._bot import SelfBot
 import logging
-import aiohttp
 import os
 import gzip
 import discord
+from ._bot import download_message_attachments
 
 guilds = {632751884461015051, 356094949659508736, 419424683188944897}
 DIR = "/tmp/selfbot_media_tracker"
@@ -16,21 +16,12 @@ if not os.path.exists(DIR):
     logging.exception(e)
 
 
-@GENERATE_CLASS.event
+@SelfBot.event
 async def on_message(bot, msg):
   if msg.author == bot.user:
-    async with aiohttp.ClientSession() as session:
-      for attachment in msg.attachments:
-        path = os.path.join(DIR, attachment.url.split('/')[-1])
-        resp = await session.get(attachment.url)
-        with gzip.open(path, 'wb') as fd:
-          try:
-            fd.write(await resp.read())
-          except Exception as e:
-            logging.exception(e)
-            logging.critical(f"Couldn't save \"{attachment.url}\" to {path}")
+    await download_message_attachments(DIR, msg)
   
-@GENERATE_CLASS.event
+@SelfBot.event
 async def on_message_delete(bot, msg):
   if msg.author == bot.user and msg.guild.id in guilds:
     if msg.attachments:
@@ -47,7 +38,7 @@ async def on_message_delete(bot, msg):
       for x in files:
         x.close()
 
-@GENERATE_CLASS.command()
+@SelfBot.command()
 async def antidelete(bot, ctx, args):
   if ctx.guild.id in guilds:
     guilds.remove(ctx.guild.id)

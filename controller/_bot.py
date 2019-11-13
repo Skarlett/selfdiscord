@@ -1,6 +1,10 @@
-from . import util
+from util import parametrized_decorator
 import discord
 import logging
+import aiohttp
+import os
+import gzip
+
 
 logging = logging.getLogger(__name__)
 
@@ -41,7 +45,7 @@ class SelfBot(discord.Client):
       self.loop.create_task(wrapper())
     
   @classmethod
-  @util.parametrized_decorator
+  @parametrized_decorator
   def command(coro, cls, name=None):
     # Assumes core.on_message is defined
     logging.info(f"Adding command {name or coro.__name__}")
@@ -73,4 +77,25 @@ class SelfBot(discord.Client):
           logging.warning(e)
           continue
   
- 
+
+async def download_message_attachments(directory, msg):
+  async with aiohttp.ClientSession() as session:
+      for attachment in msg.attachments:
+        path = os.path.join(directory, attachment.url.split('/')[-1])
+        resp = await session.get(attachment.url)
+        with gzip.open(path, 'wb') as fd:
+          try:
+            fd.write(await resp.read())
+          except Exception as e:
+            logging.exception(e)
+            logging.critical(f"Couldn't save \"{attachment.url}\" to {path}")
+      
+      
+async def SOS(bot):
+  '''
+  Incase of unhandled exception, message maintainers the exception traceback
+  '''
+  logging.info("Sending SOS messages to Maintainers.")
+  stack_str = "I've had an accident! Please help. Heres the details...\n\n```{}```".format(traceback.format_exc())
+  if bot.sos:
+    await bot.sos.send(stack_str)

@@ -1,10 +1,10 @@
-from .__init__ import GENERATE_CLASS
+from ._bot import SelfBot
 import discord
 import logging
 import traceback
 import asyncio
 
-@GENERATE_CLASS.command()
+@SelfBot.command()
 async def purge(bot, ctx, args):
   if ctx.author == bot.user:
     if len(args) == 0:
@@ -17,16 +17,16 @@ async def purge(bot, ctx, args):
     
     await bot.purge_messages(ctx.channel, limit)
 
-@GENERATE_CLASS.command(name="help")
+@SelfBot.command(name="help")
 async def _help(bot, ctx, args):
   await ctx.channel.send(', '.join(bot.COMMANDS.keys()))
 
-@GENERATE_CLASS.command()
+@SelfBot.command()
 async def status(bot, ctx, args):
   await bot.change_presence(activity=discord.Game(' '.join(args)))
 
 
-@GENERATE_CLASS.command()
+@SelfBot.command()
 async def system(bot, ctx, args):
   proc = await asyncio.create_subprocess_shell(" ".join(args),
                                   stderr=asyncio.subprocess.PIPE,
@@ -34,7 +34,7 @@ async def system(bot, ctx, args):
   result = await proc.stdout.read() + await proc.stderr.read()
   await ctx.channel.send("```"+result.decode('utf8')+'```')
 
-@GENERATE_CLASS.command(name="eval")
+@SelfBot.command(name="eval")
 async def _eval(bot, ctx, args):
   pkg = ctx.content[len(bot.prefix):].split('```')
   if not len(pkg) == 3:
@@ -48,7 +48,7 @@ async def _eval(bot, ctx, args):
     await ctx.channel.send("```{}```".format(traceback.format_exc()))
 
 
-@GENERATE_CLASS.event
+@SelfBot.event
 async def on_message(bot, msg):
   if msg.author == bot.user and msg.content.startswith(bot.prefix):
     pkg = msg.content[len(bot.prefix):].split(' ')
@@ -66,12 +66,12 @@ async def on_message(bot, msg):
       except Exception as e:
         logging.exception(e)
 
-@GENERATE_CLASS.event
+@SelfBot.event
 async def on_ready(bot):
   print(f"logged in as {bot.user}")
 
 
-# @GENERATE_CLASS.background
+# @SelfBot.background
 # async def print_screen(bot):
 #   print("hello!!!", bot)
 #   await asyncio.sleep(10)

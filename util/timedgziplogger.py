@@ -2,7 +2,6 @@ import logging.handlers
 import os
 import shutil
 import gzip
-import traceback
 
 
 ####
@@ -34,20 +33,5 @@ class TimedGunzippedRotatingFileHandler(logging.handlers.TimedRotatingFileHandle
     self.mode = 'w'
     self.stream = self._open()
 
-def parametrized_decorator(decorator):
-  def wraps(*args, **kwargs):
-    def repl(function):
-      return decorator(function, *args, **kwargs)
-    return repl
-  return wraps
-
-async def SOS():
-  '''
-  Incase of unhandled exception, message maintainers the exception traceback
-  '''
-  logging.info("Sending SOS messages to Maintainers.")
-  stack_str = "I've had an accident! Please help. Heres the details...\n\n```{}```".format(traceback.format_exc())
-  if bot.sos:
-    await bot.sos.send(stack_str)
 
 

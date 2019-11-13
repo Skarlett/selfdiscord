@@ -1,11 +1,10 @@
-from plugins import GENERATE_CLASS
+from controller import SelfBot
 import settings
 import logging
 
 if __name__ == "__main__":
     logging.info("Starting...")
-    settings.MODULES.load()
-    client = GENERATE_CLASS(settings.PREFIX)
+    client = SelfBot(settings.PREFIX)
     with open('token.secret') as fd:
         token = fd.read().strip()
     
