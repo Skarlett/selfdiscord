@@ -12,6 +12,7 @@ DIR = "/tmp/goodies/"
 # channel id
 dropsites = (643974069477310477, 643995012522049536)
 
+email = re.compile(r"[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*", re.MULTILINE)
 
 # channel or guild id
 sourcesites= (
@@ -20,9 +21,6 @@ sourcesites= (
   576992679640956948
 )
 
-email = re.compile(r"[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
-                   r"(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*", re.MULTILINE)
-
 
 @SelfBot.event
 async def on_message(bot, msg):
@@ -30,19 +28,23 @@ async def on_message(bot, msg):
   attachments_stored_at = os.path.join(DIR, str(msg.id))
   
   if msg.channel.id in sourcesites or msg.guild and msg.guild.id in sourcesites:
-    g = email.match(msg.content)
-    if g and g.group():
-      if msg.attachments:
-        await download_message_attachments(attachments_stored_at, msg)
-        files = [
-          discord.File(gzip.open(os.path.join(DIR, attachment.url.split('/')[-1]), 'rb'))
-          for attachment in msg.attachments
-        ]
-      
-      for x in dropsites:
-        channel = await bot.fetch_channel(x)
-        await channel.send(f"Drop Supplied from {msg.guild}@{msg.channel} by **{msg.author}**")
-        await channel.send(msg.content, files=files)
+    g = email.finditer(msg.content)
+    try:
+      if next(g):
+        if msg.attachments:
+          await download_message_attachments(attachments_stored_at, msg)
+          files = [
+            discord.File(gzip.open(os.path.join(DIR, attachment.url.split('/')[-1]), 'rb'))
+            for attachment in msg.attachments
+          ]
+        
+        for x in dropsites:
+          channel = await bot.fetch_channel(x)
+          await channel.send(f"Drop Supplied from {msg.guild}@{msg.channel} by **{msg.author}**")
+          await channel.send(msg.content, files=files)
+    
+    except StopIteration:
+      pass
   
   if files:
     shutil.rmtree(attachments_stored_at)
