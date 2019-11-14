@@ -5,23 +5,21 @@ import os
 import discord
 import gzip
 import shutil
-
+import asyncio
 
 DIR = "/tmp/goodies/"
 
 # channel id
-dropsites = (643974069477310477, 643995012522049536)
+dropsites = (
+  643995012522049536,
+)
 
 email = re.compile(r"[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*", re.MULTILINE)
 
 # channel or guild id
 sourcesites= (
   # https://discord.gg/m4nKChS net.cracking.es
-  580794788006068254,
   576992679640956948,
-  
-  #Test sesh
-  356094949659508736
 )
 
 
@@ -45,7 +43,12 @@ async def on_message(bot, msg):
           channel = await bot.fetch_channel(x)
           await channel.send(f"Drop Supplied from {msg.guild}@{msg.channel} by **{msg.author}**")
           await channel.send(msg.content, files=files)
-    
+          try:
+            nmsg = await bot.wait_for('message', check=lambda ctx: ctx.author == msg.author and ctx.channel == msg.channel, timeout=60)
+            await channel.send(nmsg.content)
+          except asyncio.TimeoutError:
+            pass
+          
     except StopIteration:
       pass
   
