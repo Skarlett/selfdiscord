@@ -20,6 +20,9 @@ email = re.compile(r"[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]
 sourcesites= (
   # https://discord.gg/m4nKChS net.cracking.es
   576992679640956948,
+  
+  # https://discord.gg/9UasgE9 - strife
+  621414243421519883
 )
 
 
